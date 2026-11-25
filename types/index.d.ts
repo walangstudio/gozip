@@ -13,7 +13,7 @@ export type GzMsg = {
   meta?: string
 }
 
-export type GzStep = { at: number; text: string }
+export type GzStep = { at: number; text: string; logged?: number }
 
 declare module 'claude-code' {
   interface PluginState {

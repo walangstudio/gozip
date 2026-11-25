@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2026-11-26
+
+### Fixed
+- A progress step masked late is no longer left out of the side model's next update.
+- A long progress file is trimmed at a line, so a token is never cut in half before masking.
+
 ## [0.1.0] - 2026-11-26
 
 ### Added

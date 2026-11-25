@@ -443,3 +443,10 @@ test('a token in a command is masked before it is kept, so the side prompt never
   expect(spawned[1]!.input).toMatch(/\[REDACTED\]/)
   expect(spawned[1]!.input).not.toMatch(/sk-ant-secret99/)
 })
+
+test('a step masked late still reaches the next delta, in event order', () => {
+  const steps = [{ at: 5, text: 'edit a.ts', logged: 20 }, { at: 8, text: 'read b.ts', logged: 9 }]
+  const body = digest(steps, 10)!
+  expect(body).toMatch(/edit a\.ts/)
+  expect(body).not.toMatch(/read b\.ts/)
+})

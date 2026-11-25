@@ -99,7 +99,8 @@ export const describeTool = (input: Record<string, unknown>, failed: boolean) =>
 
 // Steps since the side model last heard from main. Null when too much happened: re-fork instead.
 export const digest = (steps: readonly GzStep[], since: number, cap = DELTA_CAP) => {
-  const fresh = steps.filter(one => one.at > since)
+  // By when a step was logged, not when it happened: one masked late can land behind `since`.
+  const fresh = steps.filter(one => (one.logged ?? one.at) > since)
   if (fresh.length === 0) return ''
   const body = fresh.map(one => `- ${hhmm(one.at)} ${defang(one.text)}`).join('\n')
   return body.length > cap ? null : body
@@ -152,11 +153,12 @@ const editMsg = ($: EngineInterface, id: number, fn: (one: GzMsg) => GzMsg) =>
 // `at` is taken before any masking, so a step whose masking ran long still lands in event order.
 async function step($: EngineInterface, text: string, at?: number) {
   await syncSession($)
-  const when = at ?? (await $.clock.now())
+  const logged = await $.clock.now()
+  const when = at ?? logged
   await update($, progress, list => {
     const pos = list.findLastIndex(one => one.at <= when) + 1
     if (list[pos - 1]?.text === text || list[pos]?.text === text) return list
-    return [...list.slice(0, pos), { at: when, text }, ...list.slice(pos)].slice(-KEEP_STEPS)
+    return [...list.slice(0, pos), { at: when, text, logged }, ...list.slice(pos)].slice(-KEEP_STEPS)
   })
   await update($, dirty, () => true)
 }
@@ -193,7 +195,10 @@ async function writeMd($: EngineInterface, id: string, steps: readonly GzStep[])
   if (!dir || !/^[\w-]+$/.test(id)) return
   // Steps are masked as they come in; the whole file is masked again in case one slipped through.
   // Newest steps kept when long; a masker failure throws, so the old file stays and the flush retries.
-  const masked = await $.session.redact(renderMd(id, steps).slice(-REDACT_MAX))
+  const body = renderMd(id, steps)
+  const cut = body.indexOf('\n', body.length - REDACT_MAX)
+  const tail = body.length <= REDACT_MAX ? body : body.slice(cut < 0 ? -REDACT_MAX : cut + 1)
+  const masked = await $.session.redact(tail)
   await $.fs.write(`${dir}/.gozip/progress/${id}.md`, masked)
 }
 
