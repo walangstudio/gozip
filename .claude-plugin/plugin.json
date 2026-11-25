@@ -1,0 +1,8 @@
+{
+  "name": "gozip",
+  "version": "0.1.0",
+  "description": "A side chat beside your session: ask Sonnet or Opus about the work while Claude keeps going, then send notes, queued prompts or interrupts to the main chat",
+  "author": { "name": "walangstudio" },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}
