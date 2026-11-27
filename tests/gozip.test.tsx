@@ -91,6 +91,10 @@ test('parseLine reads init, text, tool use and the result; ignores the rest and 
   expect(parseLine(JSON.stringify({ type: 'stream_event', parent_tool_use_id: 't1', event: { type: 'content_block_delta', delta: { type: 'text_delta', text: 'x' } } }))).toBeUndefined()
   expect(parseLine(result.trim())).toEqual({ type: 'done', isError: false, error: undefined })
   expect(parseLine(JSON.stringify({ type: 'result', is_error: true, result: 'boom' }))).toEqual({ type: 'done', isError: true, error: 'boom' })
+  // What `claude -p --resume <unknown id>` prints: the reason is in `errors`, not `result`.
+  const missing = { type: 'result', subtype: 'error_during_execution', is_error: true, errors: ['No conversation found with session ID: x'] }
+  expect(parseLine(JSON.stringify(missing))).toEqual({ type: 'done', isError: true, error: 'No conversation found with session ID: x' })
+  expect(parseLine(JSON.stringify({ ...missing, errors: ['', 3] }))).toEqual({ type: 'done', isError: true, error: 'error_during_execution' })
   expect(parseLine('not json')).toBeUndefined()
 })
 

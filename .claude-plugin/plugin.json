@@ -1,6 +1,6 @@
 {
   "name": "gozip",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A side chat beside your session: ask Fable, Opus, Sonnet or Haiku about the work while Claude keeps going, then send notes, queued prompts or interrupts to the main chat",
   "author": { "name": "walangstudio" },
   "license": "MIT",

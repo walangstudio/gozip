@@ -79,7 +79,9 @@ export const parseLine = (line: string): StreamEvent | undefined => {
     return undefined
   }
   if (j.type === 'system' && j.subtype === 'init' && typeof j.session_id === 'string') return { type: 'init', sessionId: j.session_id, model: j.model }
-  if (j.type === 'result') return { type: 'done', isError: !!j.is_error, error: j.is_error ? String(j.result ?? j.subtype ?? 'error') : undefined }
+  // A run that fails before its first turn puts the reason in `errors`; `subtype` only names the kind.
+  const why = () => j.result || (Array.isArray(j.errors) ? j.errors.filter((one: unknown) => typeof one === 'string' && one).join('; ') : '') || j.subtype || 'error'
+  if (j.type === 'result') return { type: 'done', isError: !!j.is_error, error: j.is_error ? String(why()) : undefined }
   if (j.type !== 'stream_event' || j.parent_tool_use_id) return undefined
   const ev = j.event ?? {}
   if (ev.type === 'message_start') return { type: 'message' }
@@ -488,7 +490,7 @@ async function send($: EngineInterface, raw: string) {
 async function refork($: EngineInterface) {
   await stop($)
   await update($, sideId, () => null)
-  await addMsg($, { role: 'sys', text: 'sync: your next question starts from main as it is now; the side model forgets this chat' })
+  await addMsg($, { role: 'sys', text: 'sync: your next question forks main as it is now (the side model forgets this chat)' })
 }
 
 async function isPaneShown($: EngineInterface) {
@@ -499,7 +501,7 @@ async function runCommand($: EngineInterface, e: CommandRunInput) {
   const arg = e.args.trim()
   if (arg === 'sync') {
     await refork($)
-    return { text: 'goZip: synced - the next question starts from main as it is now' }
+    return { text: 'goZip: sync - your next question forks main as it is now' }
   }
   if (arg === 'stop') {
     await stop($)
@@ -647,7 +649,7 @@ export const register: Register = on => {
     const behind = (await read($, progress)).filter(one => (one.logged ?? one.at) > since && !one.text.startsWith('goZip -> main')).length
     const at = await read($, syncedAt)
     const status = isBusy ? 'answering…'
-      : !isForked ? 'not forked yet'
+      : !isForked ? 'forks main on your next question'
       : at === null ? 'forked'
       : `synced ${hhmm(at)} · ${behind ? `${behind} new main step${behind > 1 ? 's' : ''}, sent with your next question` : 'up to date'}`
     // The field cuts a long text off at its end, so goZip scrolls it: the head is cut off the left, half a
