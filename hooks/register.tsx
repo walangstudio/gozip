@@ -247,7 +247,7 @@ export const pathHits = (whereOut: string, ...dirs: readonly string[]) => {
 }
 
 // The child loads user settings only (project ones could run helpers or redirect the API), but the
-// project's deny rules still bind it: they are passed on as flag settings, with hooks off.
+// project's deny rules still bind it: they are passed on as flag settings, with hooks off and the Code Mode opt-in.
 export const denyRules = (...files: readonly string[]) => {
   const rules = new Set<string>()
   // A file that does not parse throws: the side chat must not start without the project's deny rules.
@@ -255,7 +255,9 @@ export const denyRules = (...files: readonly string[]) => {
     const deny = JSON.parse(text)?.permissions?.deny
     if (Array.isArray(deny)) for (const one of deny) if (typeof one === 'string') rules.add(one)
   }
-  return JSON.stringify({ disableAllHooks: true, permissions: { deny: [...rules] } })
+  // A main in Code Mode resumes only where claude -p gets the opt-in from --settings env (process env does not
+  // count); a plain main still resumes with plain tools. Under it, REPL scripts can call --tools' Read, Grep, Glob only.
+  return JSON.stringify({ disableAllHooks: true, env: { CLAUDE_CODE_EXPERIMENTAL_CODE_MODE: '1' }, permissions: { deny: [...rules] } })
 }
 
 async function childSettings($: EngineInterface) {

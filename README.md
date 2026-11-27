@@ -1,6 +1,6 @@
 # goZip
 
-![tests](https://img.shields.io/badge/tests-42%20passing-brightgreen) ![version](https://img.shields.io/badge/version-0.1.1-blue)
+![tests](https://img.shields.io/badge/tests-42%20passing-brightgreen) ![version](https://img.shields.io/badge/version-0.1.2-blue)
 
 goZip is a side chat that sits beside your Claude Code session. Ask Fable, Opus, Sonnet or Haiku about the work while Claude keeps going, then send notes, queued prompts or interrupts to the main chat.
 
@@ -29,7 +29,7 @@ Type: Ask side    Model: Sonnet 5.5
 
 - **Fork.** The first question runs `claude -p --resume <session> --fork-session`. The side model starts with everything main knows. It streams token by token.
 - **Live progress.** goZip hooks main's tool calls and turns. Each later question carries what main did since the last answer: files edited, commands run, main's replies.
-- **Disk.** The side model has Read, Grep and Glob, and nothing that writes. No MCP servers, no hooks, and user settings only, with the project's deny rules carried over. It's told to read files rather than trust its memory.
+- **Disk.** The side model has Read, Grep and Glob, and nothing that writes. No MCP servers, no hooks, and user settings only, with the project's deny rules carried over. It's told to read files rather than trust its memory. Works when main runs Code Mode (experimental): the side model's REPL scripts can call Read, Grep and Glob only.
 - **Sync status.** The header shows when main's steps last reached the side model and how many new ones wait for your next question, e.g. `synced 14:05 · 3 new main steps, sent with your next question`.
 - **Sync.** When main has moved too far (over ~4k chars of progress), the next question forks main again. `/clear` and `/resume` reset it too. Sync (`y`) forces it: the side model starts over from main as it is now and forgets the side chat.
 
