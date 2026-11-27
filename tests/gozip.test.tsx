@@ -291,11 +291,13 @@ test('the child loads user settings only, with hooks off and the project deny ru
   await clock.settle()
   const argv = spawned[0]!.argv
   expect(argv[argv.indexOf('--setting-sources') + 1]).toBe('user')
-  expect(JSON.parse(argv[argv.indexOf('--settings') + 1]!)).toEqual({ disableAllHooks: true, permissions: { deny: ['Read(./.env)', 'Bash'] } })
+  expect(JSON.parse(argv[argv.indexOf('--settings') + 1]!)).toEqual({ disableAllHooks: true, env: { CLAUDE_CODE_EXPERIMENTAL_CODE_MODE: '1' }, permissions: { deny: ['Read(./.env)', 'Bash'] } })
+  // Code Mode on in the child keeps scripts to the same read-only tools.
+  expect(argv[argv.indexOf('--tools') + 1]).toBe('Read,Grep,Glob')
 })
 
 test('denyRules keeps only deny strings and refuses a broken file', () => {
-  expect(JSON.parse(denyRules('{"permissions":{"deny":["A",3],"allow":["B"]}}', '{}'))).toEqual({ disableAllHooks: true, permissions: { deny: ['A'] } })
+  expect(JSON.parse(denyRules('{"permissions":{"deny":["A",3],"allow":["B"]}}', '{}'))).toEqual({ disableAllHooks: true, env: { CLAUDE_CODE_EXPERIMENTAL_CODE_MODE: '1' }, permissions: { deny: ['A'] } })
   expect(() => denyRules('not json')).toThrow()
 })
 

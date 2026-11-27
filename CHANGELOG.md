@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.2] - 2026-11-27
+
+### Fixed
+- A side question in a main session running Code Mode (experimental) no longer fails with `This session was started in Code Mode ... can't be resumed`. The side model then reads through REPL scripts, still limited to Read, Grep and Glob.
+
 ## [0.1.1] - 2026-11-27
 
 ### Fixed
