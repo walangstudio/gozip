@@ -1,6 +1,6 @@
 # goZip
 
-![tests](https://img.shields.io/badge/tests-42%20passing-brightgreen) ![version](https://img.shields.io/badge/version-0.1.0-blue)
+![tests](https://img.shields.io/badge/tests-42%20passing-brightgreen) ![version](https://img.shields.io/badge/version-0.1.1-blue)
 
 goZip is a side chat that sits beside your Claude Code session. Ask Fable, Opus, Sonnet or Haiku about the work while Claude keeps going, then send notes, queued prompts or interrupts to the main chat.
 

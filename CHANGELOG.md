@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2026-11-27
+
+### Fixed
+- A side question whose fork fails shows why (e.g. `No conversation found with session ID: ...`) instead of `error_during_execution`.
+- Clearer wording before the first fork and after Sync: the header reads `forks main on your next question`.
+
 ## [0.1.0] - 2026-11-26
 
 ### Added
